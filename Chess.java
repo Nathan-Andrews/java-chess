@@ -14,6 +14,8 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
     private Color selectedColor = new Color(242, 98, 85,200);
     private Color moveColor = new Color(150, 150, 150, 125);
 
+    private Bot bot = new Bot();
+
     private int mouseX, mouseY;
     private int selectedIndex;
     private boolean isDragging;
@@ -34,6 +36,9 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
         Timer timer = new Timer(10, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 repaint();
+                if (Piece.isSameColor(bot.color,board.turnColor)) {
+                    board.movePiece(bot.playMove(board));
+                }
         }});
 
         timer.start();
@@ -143,7 +148,9 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
     @Override
     public void mouseReleased(MouseEvent e) {
         // Handle mouse release event
-        if (isDragging) board.movePiece(selectedIndex,coordsToIndex(mouseX, mouseY));
+        if (isDragging) {
+            board.movePiece(new Move(selectedIndex,coordsToIndex(mouseX, mouseY)));
+        }
 
         isDragging = false;
     }

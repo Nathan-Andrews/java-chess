@@ -1,7 +1,4 @@
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Hashtable;
 
 public class Board {
 
@@ -11,7 +8,7 @@ public class Board {
     public boolean[] hasMoved = {false,false,false,false,false,false}; // used to see if castling is possible
     public int turnColor = Piece.white;
 
-    Map<Integer,LinkedList<Integer>> moves;
+    Moves moves;
 
     public Board() {
         generateBoard();
@@ -71,18 +68,18 @@ public class Board {
         return board[i];
     }
 
-    public void movePiece(int moveFrom, int moveTo) {
-        if (!moveInMoveset(moveFrom,moveTo)) {
+    public void movePiece(Move move) {
+        if (!moveInMoveset(move.moveFrom,move.moveTo)) {
             return;
         }
 
-        if (moveTo == moveFrom) return;
+        if (move.moveTo == move.moveFrom) return;
 
-        manageEnPassent(moveFrom,moveTo);
-        manageCastling(moveFrom,moveTo);
+        manageEnPassent(move.moveFrom,move.moveTo);
+        manageCastling(move.moveFrom,move.moveTo);
 
-        board[moveTo] = board[moveFrom];
-        board[moveFrom] = Piece.none;
+        board[move.moveTo] = board[move.moveFrom];
+        board[move.moveFrom] = Piece.none;
 
         turnColor = Piece.flipColor(turnColor);
 
@@ -128,8 +125,8 @@ public class Board {
         }
     }
 
-    public Map<Integer,LinkedList<Integer>> generateMoves(int color, int[] position) {
-        Map<Integer,LinkedList<Integer>> allMoves = new Hashtable<Integer,LinkedList<Integer>>();
+    Moves generateMoves(int color, int[] position) {
+        Moves allMoves = new Moves();
 
         for (int i = 0; i < 64; i++) {
             if (Piece.isSameColor(position[i],color)) {
