@@ -14,7 +14,7 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
     private Color selectedColor = new Color(242, 98, 85,200);
     private Color moveColor = new Color(150, 150, 150, 125);
 
-    private Bot bot = new Bot();
+    private StupidBot bot = new StupidBot();
 
     private int mouseX, mouseY;
     private int selectedIndex;
@@ -36,7 +36,7 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
         Timer timer = new Timer(10, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 repaint();
-                if (Piece.isSameColor(bot.color,board.turnColor)) {
+                if (!board.isGameOver && Piece.isSameColor(bot.color,board.turnColor)) {
                     board.movePiece(bot.playMove(board));
                 }
         }});
@@ -44,7 +44,8 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
         timer.start();
 
         board = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-        // convertFenString("r1b1k1nr/p2p1pNp/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1");
+        // board = new Board("k7/5Q2/1K6/8/8/8/8/8");
+        // board = new Board("r1b1k1n1/p2p1p1P/n2B4/1p1NP2P/6P1/3P1Q2/P1P1K3/q5b1");
 
         frame.setVisible(true);
     }
@@ -56,6 +57,23 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
         drawBoard(g);
         drawPieces(g);
         if (isDragging) drawDragging(g);
+
+
+        if (board.isGameOver) {
+            g.setColor(new Color(0,0,0));
+            g.fillRoundRect(boardSize / 4 - 5, boardSize * 5 / 16 - 5, boardSize / 2 + 10, boardSize / 4 + 10,20,20);
+            g.setColor(new Color(255,255,255));
+            g.fillRoundRect(boardSize / 4, boardSize * 5 / 16, boardSize / 2, boardSize / 4,20,20);
+
+            Toolkit t=Toolkit.getDefaultToolkit();  
+            Image image;
+
+            if (!board.isCheckmate) image = t.getImage(Piece.texturePath + "stalemate.png");
+            else if (board.turnColor == Piece.black) image = t.getImage(Piece.texturePath + "checkmateWhite.png");
+            else image = t.getImage(Piece.texturePath + "checkmateBlack.png");
+            
+            g.drawImage(image,boardSize / 4 - 50, boardSize * 5 / 16 - 115, boardSize * 2 / 3, boardSize * 2 / 3,this);
+        }
     }
 
     public void drawPieces(Graphics g) {
@@ -101,13 +119,6 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
                         g.fillRect(i * boardSize / 8,j * boardSize / 8,boardSize / 8 + 1,boardSize / 8 + 1);
                     }
                 }
-                // if (isDragging && Piece.isPawn(board.at(selectedIndex))) {
-                //     if ((Piece.isWhite(board.at(selectedIndex)) && board.enPassant - 8 == i) || (Piece.isBlack(board.at(selectedIndex)) && board.enPassant + 8 == i)) {
-                //         System.out.println("a");
-                //         g.setColor(selectedColor);
-                //         g.fillRect(i * boardSize / 8,j * boardSize / 8,boardSize / 8 + 1,boardSize / 8 + 1);
-                //     }
-                // }
             }
         }
     }

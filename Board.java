@@ -8,6 +8,9 @@ public class Board {
     public boolean[] hasMoved = {false,false,false,false,false,false}; // used to see if castling is possible
     public int turnColor = Piece.white;
 
+    public boolean isGameOver = false;
+    public boolean isCheckmate = false;
+
     Moves moves;
 
     public Board() {
@@ -53,6 +56,8 @@ public class Board {
             }
         }
 
+        updateCastlingRights();
+
         moves = generateMoves(turnColor, board);
     }
 
@@ -64,11 +69,12 @@ public class Board {
     }
 
     public int at(int i) {
-        // if (i > 63 || i < 0) throw new Exception("invalid index for board");
         return board[i];
     }
 
     public void movePiece(Move move) {
+        if (isGameOver) return;
+
         if (!moveInMoveset(move.moveFrom,move.moveTo)) {
             return;
         }
@@ -80,6 +86,8 @@ public class Board {
 
         board[move.moveTo] = board[move.moveFrom];
         board[move.moveFrom] = Piece.none;
+        
+        managePawnPromotion(move);
 
         turnColor = Piece.flipColor(turnColor);
 
@@ -106,12 +114,7 @@ public class Board {
     }
 
     public void manageCastling(int moveFrom, int moveTo) {
-        if (!Piece.isKing(board[60])) hasMoved[0] = true;
-        if (!Piece.isRook(board[56])) hasMoved[1] = true;
-        if (!Piece.isRook(board[63])) hasMoved[2] = true;
-        if (!Piece.isKing(board[4])) hasMoved[3] = true;
-        if (!Piece.isRook(board[0])) hasMoved[4] = true;
-        if (!Piece.isRook(board[7])) hasMoved[5] = true;
+        updateCastlingRights();
 
         if (Piece.isKing(board[moveFrom]) && (moveFrom - moveTo == 2 || moveFrom - moveTo == -2)) {
             if (moveFrom - moveTo == -2) {
@@ -125,15 +128,38 @@ public class Board {
         }
     }
 
+    public void updateCastlingRights() {
+        if (!Piece.isKing(board[60])) hasMoved[0] = true;
+        if (!Piece.isRook(board[56])) hasMoved[1] = true;
+        if (!Piece.isRook(board[63])) hasMoved[2] = true;
+        if (!Piece.isKing(board[4])) hasMoved[3] = true;
+        if (!Piece.isRook(board[0])) hasMoved[4] = true;
+        if (!Piece.isRook(board[7])) hasMoved[5] = true;
+    }
+
+    public void managePawnPromotion(Move move) {
+        if (Piece.isPawn(board[move.moveTo])) {
+            if (Piece.isWhite(board[move.moveTo]) && move.moveTo < 8) {
+                board[move.moveTo] = Piece.queen | Piece.white;
+            }
+            else if (Piece.isBlack(board[move.moveTo]) && move.moveTo > 55) {
+                board[move.moveTo] = Piece.queen | Piece.black;
+            }
+        }
+    }
+
     Moves generateMoves(int color, int[] position) {
         Moves allMoves = new Moves();
 
         for (int i = 0; i < 64; i++) {
             if (Piece.isSameColor(position[i],color)) {
-                // System.out.println(i);
                 allMoves.put(i,generateLegalMovesForPiece(i, position, color));
             }
         }
+
+        isGameOver = allMoves.size() == 0;
+        isCheckmate = isGameOver && isInCheck(position,color);
+
         return allMoves;
     }
 
@@ -151,10 +177,10 @@ public class Board {
                         plMoves.add(i+16);
                     }
                 }
-                if (enPassant + 1 == i || (i % 8 < 7 && !Piece.isEmpty(position[i+7]) && !Piece.isSameColor(position[i],position[i + 7]))) {
+                if (enPassant + 1 == i || (i % 8 > 0 && !Piece.isEmpty(position[i+7]) && !Piece.isSameColor(position[i],position[i + 7]))) {
                     plMoves.add(i + 7);
                 }
-                if (enPassant - 1 == i || (i % 8 > 0 && !Piece.isEmpty(position[i+9]) && !Piece.isSameColor(position[i], position[i + 9]))) {
+                if (enPassant - 1 == i || (i % 8 < 7 && !Piece.isEmpty(position[i+9]) && !Piece.isSameColor(position[i], position[i + 9]))) {
                     plMoves.add(i+9);
                 }
             }

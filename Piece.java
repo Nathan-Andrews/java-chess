@@ -46,6 +46,15 @@ public final class Piece {
         put(queen | black,"Bqueen.png");
     }};
 
+    public static Map<Integer, Integer> value = new Hashtable<Integer,Integer>() {{
+        put(pawn, 100);
+        put(bishop, 300);
+        put(knight,300);
+        put(rook,500);
+        put(queen,900);
+        put(king,1000);
+    }};
+
     public static boolean isPawn(int i) {
         return i % white == pawn;
     }
