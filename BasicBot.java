@@ -8,8 +8,6 @@ public class BasicBot extends Bot {
     }
 
     public Move playMove(Board board) {
-        int movesVisited = 0;
-
         Move bestMove = board.moves.atMove(0);
         int bestScore = -1000000;
 
@@ -19,8 +17,6 @@ public class BasicBot extends Bot {
 
             int minScore = 1000000; // score of the best move for white
             for (int j = 0; j < newBoard.moves.size(); j++) {
-                movesVisited++;
-
                 Board newBoard2 = new Board(newBoard);
                 newBoard2.movePiece(newBoard.moves.atMove(j));
 
@@ -32,7 +28,6 @@ public class BasicBot extends Bot {
                 bestMove = board.moves.atMove(i);
             }
         }
-        System.out.println(movesVisited);
 
         return bestMove;
     }

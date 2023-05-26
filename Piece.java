@@ -55,6 +55,117 @@ public final class Piece {
         put(king,1000);
     }};
 
+    // bonus squares give extra eval points to encourage the bot to position its pieces where they are strongest
+    public static int[] pawnBonusWhite = 
+    {3,3,3,3,3,3,3,3,
+    10,10,10,10,10,10,10,10,
+    5,5,7,8,8,7,5,5,
+    4,4,5,8,8,5,4,4,
+    3,3,3,7,7,3,3,3,
+    3,2,1,3,3,1,2,3,
+    3,4,4,-1,-1,4,4,3,
+    3,3,3,3,3,3,3,3};
+    public static int[] pawnBonusBlack = 
+    {3,3,3,3,3,3,3,3,
+    3,4,4,-1,-1,4,4,3,
+    3,2,1,3,3,1,2,3,
+    3,3,3,7,7,3,3,3,
+    4,4,5,8,8,5,4,4,
+    5,5,7,8,8,7,5,5,
+    10,10,10,10,10,10,10,10,
+    3,3,3,3,3,3,3,3};
+    public static int[] knightBonus = 
+    {0,1,2,2,2,2,1,0,
+    1,3,4,5,5,4,3,1,
+    2,4,6,7,7,6,4,2,
+    2,5,8,9,9,8,5,2,
+    2,5,8,9,9,8,5,2,
+    2,4,6,7,7,6,4,2,
+    1,3,4,5,5,4,3,1,
+    0,1,2,2,2,2,1,0};
+    public static int[] bishopBonusWhite = 
+    {0,3,3,3,3,3,3,0,
+    3,6,6,6,6,6,6,3,
+    3,6,7,8,8,7,6,3,
+    3,7,7,8,8,7,7,3,
+    3,4,9,8,8,9,4,3,
+    3,8,8,8,8,8,8,3,
+    3,8,4,4,4,4,8,3,
+    4,2,2,2,2,2,2,4};
+    public static int[] bishopBonusBlack = 
+    {4,2,2,2,2,2,2,4,
+    3,8,4,4,4,4,8,3,
+    3,8,8,8,8,8,8,3,
+    3,4,9,8,8,9,4,3,
+    3,7,7,8,8,7,7,3,
+    3,6,7,8,8,7,6,3,
+    3,6,6,6,6,6,6,3,
+    0,3,3,3,3,3,3,0};
+    public static int[] rookBonusWhite = 
+    {6,6,6,6,6,6,6,6,
+    7,9,9,9,9,9,9,7,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    4,4,7,8,8,7,4,4};
+    public static int[] rookBonusBlack = 
+    {4,4,7,8,8,7,4,4,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    0,4,4,4,4,4,4,0,
+    7,9,9,9,9,9,9,7,
+    6,6,6,6,6,6,6,6};
+    public static int[] kingBonusWhite = 
+    {2,1,1,0,0,1,1,2,
+    2,1,1,0,0,1,1,2,
+    3,2,2,0,0,2,2,3,
+    3,2,2,0,0,2,2,3,
+    5,3,3,2,2,3,3,5,
+    6,4,4,4,4,4,4,6,
+    8,7,5,5,5,5,7,8,
+    9,10,7,6,6,7,10,9};
+    public static int[] kingBonusBlack = 
+    {9,10,7,6,6,7,10,9,
+    8,7,5,5,5,5,7,8,
+    6,4,4,4,4,4,4,6,
+    5,3,3,2,2,3,3,5,
+    3,2,2,0,0,2,2,3,
+    3,2,2,0,0,2,2,3,
+    2,1,1,0,0,1,1,2,
+    2,1,1,0,0,1,1,2};
+    public static int[] queenBonus = 
+    {0,2,2,3,3,2,2,0,
+    2,5,5,5,5,5,5,2,
+    2,5,9,9,9,9,5,2,
+    3,5,9,9,9,9,5,3,
+    5,5,9,9,9,9,5,3,
+    2,6,9,9,9,9,5,2,
+    2,5,9,9,9,5,5,2,
+    0,2,2,3,3,2,2,0};
+
+    public static Map<Integer,int[]>  squareBonuses;
+
+    static {
+        squareBonuses = new Hashtable<Integer,int[]>();
+        squareBonuses.put(pawn | white, pawnBonusWhite);
+        squareBonuses.put(pawn | black, pawnBonusBlack);
+        squareBonuses.put(bishop | white, bishopBonusWhite);
+        squareBonuses.put(bishop | black, bishopBonusBlack);
+        squareBonuses.put(knight | white, knightBonus);
+        squareBonuses.put(knight | black, knightBonus);
+        squareBonuses.put(rook | white, rookBonusWhite);
+        squareBonuses.put(rook | black, rookBonusBlack);
+        squareBonuses.put(king | white, kingBonusWhite);
+        squareBonuses.put(king | black, kingBonusBlack);
+        squareBonuses.put(queen | white, queenBonus);
+        squareBonuses.put(queen | black, queenBonus);
+    }
+
+
     public static boolean isPawn(int i) {
         return i % white == pawn;
     }

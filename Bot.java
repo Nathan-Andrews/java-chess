@@ -20,8 +20,14 @@ public class Bot {
 
         for (int i = 0; i < 64; i++) {
             if (board.at(i) != Piece.none) {
-                if (Piece.isSameColor(board.at(i),color)) eval += Piece.value.get(board.at(i) % Piece.white);
-                else eval -= Piece.value.get(board.at(i) % Piece.white);
+                if (Piece.isSameColor(board.at(i),color)) {
+                    eval += Piece.value.get(board.at(i) % Piece.white);
+                    eval += Piece.squareBonuses.get(board.at(i))[i];
+                }
+                else {
+                    eval -= Piece.value.get(board.at(i) % Piece.white);
+                    eval -= Piece.squareBonuses.get(board.at(i))[i];
+                }
             }
         }
 

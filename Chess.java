@@ -3,11 +3,8 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.Graphics;
 import java.awt.Color;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
 public class Chess extends JPanel implements MouseListener, MouseMotionListener {
     private JFrame frame = new JFrame("Chess");
