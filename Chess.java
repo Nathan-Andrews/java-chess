@@ -3,6 +3,11 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.awt.Graphics;
 import java.awt.Color;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 public class Chess extends JPanel implements MouseListener, MouseMotionListener {
     private JFrame frame = new JFrame("Chess");
@@ -14,7 +19,8 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
     private Color selectedColor = new Color(242, 98, 85,200);
     private Color moveColor = new Color(150, 150, 150, 125);
 
-    private StupidBot bot = new StupidBot();
+    private BasicBot bot = new BasicBot();
+    private boolean isComputing = false;
 
     private int mouseX, mouseY;
     private int selectedIndex;
@@ -33,11 +39,19 @@ public class Chess extends JPanel implements MouseListener, MouseMotionListener 
         addMouseListener(this);
         addMouseMotionListener(this);
 
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+
         Timer timer = new Timer(10, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 repaint();
-                if (!board.isGameOver && Piece.isSameColor(bot.color,board.turnColor)) {
-                    board.movePiece(bot.playMove(board));
+
+                if (!isComputing && !board.isGameOver && Piece.isSameColor(bot.color,board.turnColor)) {
+                    isComputing = true;
+
+                    executorService.submit(() -> {
+                        board.movePiece(bot.playMove(board));
+                        isComputing = false;
+                    });
                 }
         }});
 

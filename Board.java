@@ -8,6 +8,8 @@ public class Board {
     public boolean[] hasMoved = {false,false,false,false,false,false}; // used to see if castling is possible
     public int turnColor = Piece.white;
 
+    private int repetitionCounter = 0;  // usually repetition stalemate is threefold, but ill just use a counter for simplicity
+
     public boolean isGameOver = false;
     public boolean isCheckmate = false;
 
@@ -21,6 +23,7 @@ public class Board {
     }
 
     public Board(Board b) {
+        board = new int[64];
         // copy constructor
         for (int i = 0; i < 64; i++) {
             board[i] = b.board[i];
@@ -34,9 +37,11 @@ public class Board {
     }
 
     public Board(int[] position) {
+        board = new int[64];
         for (int i = 0; i < 64; i++) {
             board[i] = position[i];
         }
+        updateCastlingRights();
     }
 
     public Board(String fen) {
@@ -81,6 +86,8 @@ public class Board {
 
         if (move.moveTo == move.moveFrom) return;
 
+        if (at(move.moveTo) != Piece.none) repetitionCounter = 0;
+
         manageEnPassent(move.moveFrom,move.moveTo);
         manageCastling(move.moveFrom,move.moveTo);
 
@@ -102,9 +109,11 @@ public class Board {
     public void manageEnPassent(int moveFrom, int moveTo) {
         if (Piece.isPawn(board[moveFrom]) && Piece.isWhite(board[moveFrom]) && enPassant - 8 == moveTo) {
             board[enPassant] = Piece.none;
+            repetitionCounter = 0;
         }
         if (Piece.isPawn(board[moveFrom]) && Piece.isBlack(board[moveFrom]) && enPassant + 8 == moveTo) {
             board[enPassant] = Piece.none;
+            repetitionCounter = 0;
         }
 
         enPassant = -99;
@@ -157,8 +166,10 @@ public class Board {
             }
         }
 
-        isGameOver = allMoves.size() == 0;
-        isCheckmate = isGameOver && isInCheck(position,color);
+        repetitionCounter++;
+
+        isGameOver = allMoves.size() == 0 || repetitionCounter > 50;
+        isCheckmate = isGameOver && isInCheck(color);
 
         return allMoves;
     }
@@ -274,7 +285,7 @@ public class Board {
             position[i] = Piece.none;
 
             // if (isInCheck(position,color)) legalMoves.remove(legalMoves.indexOf(move));
-            Boolean b = isInCheck(position,color);
+            Boolean b = (new Board(position)).isInCheck(color);
 
             position[i] = position[c];
             position[c] = temp;
@@ -284,18 +295,18 @@ public class Board {
         return legalMoves;
     }
 
-    public boolean isInCheck(int[] position, int color) {
+    public boolean isInCheck(int color) {
         int king = 0;
         for (int i = 0; i < 64; i++) {
-            if (position[i] == (Piece.king | color)) {
+            if (board[i] == (Piece.king | color)) {
                 king = i;
                 break;
             }
         }
 
         for (int i = 0; i < 64; i++) {
-            if (!Piece.isSameColor(position[i],color)) {
-                if (generatePseudoLegalMovesForPiece(i, Piece.flipColor(color), position).contains(king)) return true;
+            if (!Piece.isSameColor(board[i],color)) {
+                if (generatePseudoLegalMovesForPiece(i, Piece.flipColor(color), board).contains(king)) return true;
             }
         }
 
